@@ -1,0 +1,14 @@
+[Unit]
+Description=Telegram Memory Bot
+After=syslog.target
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/tg_mem_bot/
+ExecStart=/root/tg_mem_bot/venv/bin/python /root/tg_mem_bot/bot.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
