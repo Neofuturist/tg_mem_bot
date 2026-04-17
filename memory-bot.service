@@ -7,7 +7,7 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=/root/tg_mem_bot/
-ExecStart=/root/tg_mem_bot/venv/bin/python /root/tg_mem_bot/bot.py
+ExecStart=/root/tg_mem_bot/venv/bin/python3 /root/tg_mem_bot/main.py
 Restart=always
 
 [Install]
