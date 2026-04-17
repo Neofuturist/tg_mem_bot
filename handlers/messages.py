@@ -21,15 +21,19 @@ def build_messages_handlers(repo: UserStateRepository) -> list[object]:
         )
 
     async def show_settings(message, user_id: int) -> None:
-        repo.get_or_create(user_id)
+        state = repo.get_or_create(user_id)
         await message.reply_text(
             "Настройки:",
-            reply_markup=settings_keyboard(),
+            reply_markup=settings_keyboard(state.repeats_enabled),
         )
 
     async def start_training(message, user_id: int) -> None:
         state = repo.get_or_create(user_id)
-        sequence = generate_sequence(state.lang, state.length_settings)
+        sequence = generate_sequence(
+            state.lang,
+            state.length_settings,
+            state.repeats_enabled,
+        )
         state.current_sequence = sequence
         state.dialog_state = DialogState.IDLE
         await message.reply_text(

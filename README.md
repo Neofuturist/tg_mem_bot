@@ -11,6 +11,7 @@ A simple Telegram bot for memory sequence training built with `python-telegram-b
   - Length mode:
     - fixed length
     - range `min-max`
+  - Repeats (`on` by default, can be toggled `on/off`)
 - Training flow:
   1. Generate sequence
   2. Show sequence

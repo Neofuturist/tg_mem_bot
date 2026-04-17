@@ -22,13 +22,15 @@ def main_menu_keyboard() -> InlineKeyboardMarkup:
     )
 
 
-def settings_keyboard() -> InlineKeyboardMarkup:
+def settings_keyboard(repeats_enabled: bool) -> InlineKeyboardMarkup:
+    repeats_text = "Вкл" if repeats_enabled else "Откл"
     return InlineKeyboardMarkup(
         [
             [InlineKeyboardButton(text="Язык: English", callback_data="set_lang_en")],
             [InlineKeyboardButton(text="Язык: Русский", callback_data="set_lang_ru")],
             [InlineKeyboardButton(text="Длина: фиксированная", callback_data="len_mode_fixed")],
             [InlineKeyboardButton(text="Длина: диапазон", callback_data="len_mode_range")],
+            [InlineKeyboardButton(text=f"Повторы: {repeats_text}", callback_data="toggle_repeats")],
             [InlineKeyboardButton(text="Назад", callback_data="back_main")],
         ]
     )

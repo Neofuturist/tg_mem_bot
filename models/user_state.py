@@ -32,6 +32,7 @@ class LengthSettings:
 class UserState:
     lang: Lang = Lang.EN
     length_settings: LengthSettings = field(default_factory=LengthSettings)
+    repeats_enabled: bool = True
     current_sequence: str = ""
     dialog_state: DialogState = DialogState.IDLE
     pending_range_min: int | None = None
