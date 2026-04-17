@@ -7,17 +7,18 @@ def is_correct_answer(original: str, answer: str) -> bool:
 
 
 def format_sequence_with_errors(original: str, answer: str) -> str:
-    original_chars = list(original)
-    answer_chars = list(answer)
-    max_len = max(len(original_chars), len(answer_chars))
+    normalized_answer_chars = [ch for ch in answer if not ch.isspace()]
 
+    answer_idx = 0
     parts: list[str] = []
-    for i in range(max_len):
-        orig_char = original_chars[i] if i < len(original_chars) else ""
-        ans_char = answer_chars[i] if i < len(answer_chars) else ""
 
-        if not orig_char:
+    for orig_char in original:
+        if orig_char.isspace():
+            parts.append(orig_char)
             continue
+
+        ans_char = normalized_answer_chars[answer_idx] if answer_idx < len(normalized_answer_chars) else ""
+        answer_idx += 1
 
         if orig_char.casefold() != ans_char.casefold():
             parts.append(f"*{orig_char}*")
