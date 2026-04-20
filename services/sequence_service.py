@@ -26,3 +26,9 @@ def generate_sequence(
 
     unique_length = min(length, len(alphabet))
     return "".join(random.sample(alphabet, k=unique_length))
+
+
+def format_sequence_for_display(sequence: str, pair_grouping_enabled: bool) -> str:
+    if not pair_grouping_enabled:
+        return sequence
+    return " ".join(sequence[idx : idx + 2] for idx in range(0, len(sequence), 2))

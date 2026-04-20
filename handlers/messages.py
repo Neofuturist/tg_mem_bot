@@ -9,7 +9,7 @@ from keyboards.inline import (
 )
 from models.user_state import DialogState, LengthMode
 from services.check_service import format_sequence_with_errors, is_correct_answer
-from services.sequence_service import generate_sequence
+from services.sequence_service import format_sequence_for_display, generate_sequence
 from storage.user_state_repository import UserStateRepository
 
 
@@ -24,7 +24,10 @@ def build_messages_handlers(repo: UserStateRepository) -> list[object]:
         state = repo.get_or_create(user_id)
         await message.reply_text(
             "Настройки:",
-            reply_markup=settings_keyboard(state.repeats_enabled),
+            reply_markup=settings_keyboard(
+                state.repeats_enabled,
+                state.pair_grouping_enabled,
+            ),
         )
 
     async def start_training(message, user_id: int) -> None:
@@ -37,7 +40,8 @@ def build_messages_handlers(repo: UserStateRepository) -> list[object]:
         state.current_sequence = sequence
         state.dialog_state = DialogState.IDLE
         await message.reply_text(
-            f"Запомните последовательность:\n\n`{sequence}`",
+            "Запомните последовательность:\n\n"
+            f"`{format_sequence_for_display(sequence, state.pair_grouping_enabled)}`",
             parse_mode="Markdown",
             reply_markup=remembered_keyboard(),
         )
@@ -126,12 +130,16 @@ def build_messages_handlers(repo: UserStateRepository) -> list[object]:
         if state.dialog_state == DialogState.WAITING_ANSWER:
             original = state.current_sequence
             answer = text
+            display_original = format_sequence_for_display(
+                original,
+                state.pair_grouping_enabled,
+            )
             ok = is_correct_answer(original, answer)
-            highlighted = format_sequence_with_errors(original, answer)
+            highlighted = format_sequence_with_errors(display_original, answer)
 
             if ok:
                 await message.reply_text(
-                    f"Верно!\nОригинал: `{original}`",
+                    f"Верно!\nОригинал: `{display_original}`",
                     parse_mode="Markdown",
                     reply_markup=answer_result_keyboard(),
                 )

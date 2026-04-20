@@ -22,8 +22,12 @@ def main_menu_keyboard() -> InlineKeyboardMarkup:
     )
 
 
-def settings_keyboard(repeats_enabled: bool) -> InlineKeyboardMarkup:
+def settings_keyboard(
+    repeats_enabled: bool,
+    pair_grouping_enabled: bool,
+) -> InlineKeyboardMarkup:
     repeats_text = "Вкл" if repeats_enabled else "Откл"
+    pair_grouping_text = "Вкл" if pair_grouping_enabled else "Выкл"
     return InlineKeyboardMarkup(
         [
             [InlineKeyboardButton(text="Язык: English", callback_data="set_lang_en")],
@@ -31,6 +35,12 @@ def settings_keyboard(repeats_enabled: bool) -> InlineKeyboardMarkup:
             [InlineKeyboardButton(text="Длина: фиксированная", callback_data="len_mode_fixed")],
             [InlineKeyboardButton(text="Длина: диапазон", callback_data="len_mode_range")],
             [InlineKeyboardButton(text=f"Повторы: {repeats_text}", callback_data="toggle_repeats")],
+            [
+                InlineKeyboardButton(
+                    text=f"Группировка по парам: {pair_grouping_text}",
+                    callback_data="toggle_pair_grouping",
+                )
+            ],
             [InlineKeyboardButton(text="Назад", callback_data="back_main")],
         ]
     )

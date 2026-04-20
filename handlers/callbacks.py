@@ -7,7 +7,7 @@ from keyboards.inline import (
     settings_keyboard,
 )
 from models.user_state import DialogState, Lang, LengthMode
-from services.sequence_service import generate_sequence
+from services.sequence_service import format_sequence_for_display, generate_sequence
 from storage.user_state_repository import UserStateRepository
 
 
@@ -22,7 +22,8 @@ def build_callbacks_handlers(repo: UserStateRepository) -> list[CallbackQueryHan
         state.current_sequence = sequence
         state.dialog_state = DialogState.IDLE
         await message.reply_text(
-            f"Запомните последовательность:\n\n`{sequence}`",
+            "Запомните последовательность:\n\n"
+            f"`{format_sequence_for_display(sequence, state.pair_grouping_enabled)}`",
             parse_mode="Markdown",
             reply_markup=remembered_keyboard(),
         )
@@ -39,7 +40,10 @@ def build_callbacks_handlers(repo: UserStateRepository) -> list[CallbackQueryHan
         state = repo.get_or_create(user.id)
         await query.message.edit_text(
             "Настройки:",
-            reply_markup=settings_keyboard(state.repeats_enabled),
+            reply_markup=settings_keyboard(
+                state.repeats_enabled,
+                state.pair_grouping_enabled,
+            ),
         )
         await query.answer()
 
@@ -106,9 +110,33 @@ def build_callbacks_handlers(repo: UserStateRepository) -> list[CallbackQueryHan
         status_text = "Вкл" if state.repeats_enabled else "Откл"
         await query.message.edit_text(
             "Настройки:",
-            reply_markup=settings_keyboard(state.repeats_enabled),
+            reply_markup=settings_keyboard(
+                state.repeats_enabled,
+                state.pair_grouping_enabled,
+            ),
         )
         await query.answer(f"Повторы: {status_text}")
+
+    async def toggle_pair_grouping(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        query = update.callback_query
+        if query is None or query.data != "toggle_pair_grouping" or query.message is None:
+            return
+
+        user = query.from_user
+        if user is None:
+            return
+
+        state = repo.get_or_create(user.id)
+        state.pair_grouping_enabled = not state.pair_grouping_enabled
+        status_text = "Вкл" if state.pair_grouping_enabled else "Выкл"
+        await query.message.edit_text(
+            "Настройки:",
+            reply_markup=settings_keyboard(
+                state.repeats_enabled,
+                state.pair_grouping_enabled,
+            ),
+        )
+        await query.answer(f"Группировка по парам: {status_text}")
 
     async def len_mode_fixed(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         query = update.callback_query
@@ -155,7 +183,8 @@ def build_callbacks_handlers(repo: UserStateRepository) -> list[CallbackQueryHan
         state.current_sequence = sequence
         state.dialog_state = DialogState.IDLE
         await query.message.reply_text(
-            f"Запомните последовательность:\n\n`{sequence}`",
+            "Запомните последовательность:\n\n"
+            f"`{format_sequence_for_display(sequence, state.pair_grouping_enabled)}`",
             parse_mode="Markdown",
             reply_markup=remembered_keyboard(),
         )
@@ -187,6 +216,7 @@ def build_callbacks_handlers(repo: UserStateRepository) -> list[CallbackQueryHan
         CallbackQueryHandler(set_lang_en, pattern="^set_lang_en$"),
         CallbackQueryHandler(set_lang_ru, pattern="^set_lang_ru$"),
         CallbackQueryHandler(toggle_repeats, pattern="^toggle_repeats$"),
+        CallbackQueryHandler(toggle_pair_grouping, pattern="^toggle_pair_grouping$"),
         CallbackQueryHandler(len_mode_fixed, pattern="^len_mode_fixed$"),
         CallbackQueryHandler(len_mode_range, pattern="^len_mode_range$"),
         CallbackQueryHandler(start_training, pattern="^start_training$"),
